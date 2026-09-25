@@ -52,7 +52,7 @@ $record = [
 
 hw_append_record(HW_MESSAGES_FILE, $record);
 hw_rate_hit('contact');
-hw_send_mail('New contact message — Home Worth', hw_contact_email($record), $email);
+hw_send_mail('New Contact Message ( ' . $name . ' ) - Home Worth', hw_contact_email($record), $email);
 hw_rotate_csrf();
 $_SESSION['form_ready_at'] = time();
 hw_flash('thanks', 'contact');

@@ -67,7 +67,7 @@ $lead = [
 
 hw_append_record(HW_LEADS_FILE, $lead);
 hw_rate_hit('lead');
-hw_send_mail('New property request — Home Worth', hw_lead_email($lead), $email);
+hw_send_mail('New Property Request ( ' . $name . ' ) - Home Worth', hw_lead_email($lead), $email);
 hw_rotate_csrf();
 $_SESSION['form_ready_at'] = time();
 hw_flash('thanks', 'lead');
