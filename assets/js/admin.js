@@ -44,6 +44,53 @@
     });
   }
 
+  var bulkForm = document.getElementById("bulk-delete");
+  var bulkBtn = document.getElementById("bulk-delete-btn");
+  var selectAll = document.getElementById("select-all");
+  var rowChecks = Array.prototype.slice.call(document.querySelectorAll(".row-check"));
+
+  function selectedCount() {
+    return rowChecks.filter(function (box) {
+      return box.checked;
+    }).length;
+  }
+
+  function syncBulk() {
+    var count = selectedCount();
+    if (bulkBtn) {
+      bulkBtn.disabled = count === 0;
+    }
+    if (selectAll) {
+      selectAll.checked = rowChecks.length > 0 && count === rowChecks.length;
+    }
+  }
+
+  rowChecks.forEach(function (box) {
+    box.addEventListener("change", syncBulk);
+  });
+  if (selectAll) {
+    selectAll.addEventListener("change", function () {
+      rowChecks.forEach(function (box) {
+        box.checked = selectAll.checked;
+      });
+      syncBulk();
+    });
+  }
+  if (bulkForm) {
+    bulkForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var count = selectedCount();
+      if (count === 0) {
+        return;
+      }
+      var label = count === 1 ? "Delete this entry?" : "Delete " + count + " selected entries?";
+      ask(label, "Delete", true, function () {
+        bulkForm.submit();
+      });
+    });
+  }
+  syncBulk();
+
   document.querySelectorAll(".admin-delete").forEach(function (form) {
     form.addEventListener("submit", function (event) {
       event.preventDefault();

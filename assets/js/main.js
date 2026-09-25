@@ -3,6 +3,18 @@
   var toggle = document.querySelector(".nav-toggle");
   var nav = document.getElementById("site-nav");
 
+  var leadToast = document.getElementById("lead-toast");
+  if (leadToast) {
+    var closeLeadToast = function () {
+      leadToast.remove();
+    };
+    var closeBtn = leadToast.querySelector("[data-close]");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", closeLeadToast);
+    }
+    window.setTimeout(closeLeadToast, 4200);
+  }
+
   document.querySelectorAll(".lead-form, .contact-form").forEach(function (form) {
     var proof = form.querySelector('input[name="form_js"]');
     if (!proof) {

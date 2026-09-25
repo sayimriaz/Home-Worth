@@ -60,6 +60,22 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         }
         header('Location: ' . hw_admin_url('dashboard') . '?tab=' . rawurlencode($tab) . '&page=' . $pageAfter);
         exit;
+    } elseif ($action === 'bulk_delete') {
+        $type = (string) ($_POST['type'] ?? '');
+        $ids = $_POST['ids'] ?? [];
+        $pageAfter = max(1, (int) ($_POST['page'] ?? 1));
+        $file = $type === 'messages' ? HW_MESSAGES_FILE : ($type === 'leads' ? HW_LEADS_FILE : '');
+        $tab = $type === 'messages' ? 'messages' : 'leads';
+        $ids = is_array($ids) ? $ids : [];
+        $deleted = $file !== '' ? hw_delete_records($file, $ids) : 0;
+        if ($deleted > 0) {
+            hw_rotate_csrf();
+            hw_flash('admin_notice', $deleted === 1 ? '1 entry deleted.' : $deleted . ' entries deleted.');
+        } else {
+            hw_flash('admin_notice', 'Select at least one entry to delete.');
+        }
+        header('Location: ' . hw_admin_url('dashboard') . '?tab=' . rawurlencode($tab) . '&page=' . $pageAfter);
+        exit;
     }
 }
 
@@ -177,7 +193,10 @@ $titles = [
                 <?php endif; ?>
             </div>
             <?php if ($tab === 'leads' || $tab === 'messages'): ?>
-                <button type="button" class="btn btn-gold" id="export-btn" data-href="?tab=<?php echo hw_e($tab); ?>&amp;export=csv">Export</button>
+                <div class="admin-top-actions">
+                    <button type="submit" class="btn admin-bulk-btn" id="bulk-delete-btn" form="bulk-delete" disabled>Delete selected</button>
+                    <button type="button" class="btn btn-gold" id="export-btn" data-href="?tab=<?php echo hw_e($tab); ?>&amp;export=csv">Export</button>
+                </div>
             <?php endif; ?>
         </header>
 
@@ -223,10 +242,17 @@ $titles = [
             </section>
         <?php else: ?>
             <section class="admin-card">
+                <form method="post" id="bulk-delete">
+                    <?php echo hw_csrf_field(); ?>
+                    <input type="hidden" name="action" value="bulk_delete">
+                    <input type="hidden" name="type" value="<?php echo hw_e($tab); ?>">
+                    <input type="hidden" name="page" value="<?php echo $page; ?>">
+                </form>
                 <div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
+                                <th class="admin-check"><input type="checkbox" id="select-all" aria-label="Select all"></th>
                                 <th>#</th>
                                 <?php if ($tab === 'leads'): ?>
                                     <th>Date</th>
@@ -248,6 +274,11 @@ $titles = [
                         <tbody>
                             <?php foreach ($pageItems as $index => $row): ?>
                                 <tr>
+                                    <td class="admin-check">
+                                        <?php if (!empty($row['id'])): ?>
+                                            <input type="checkbox" name="ids[]" form="bulk-delete" class="row-check" value="<?php echo hw_e((string) $row['id']); ?>" aria-label="Select row <?php echo $from + $index; ?>">
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?php echo $from + $index; ?></td>
                                     <?php if ($tab === 'leads'): ?>
                                         <td><?php echo hw_e(hw_admin_date(isset($row['created_at']) ? (string) $row['created_at'] : null)); ?></td>

@@ -285,7 +285,7 @@ function hw_verify_form_stamp(?string $stamp): bool
 
     $issuedAt = (int) $issued;
     $age = time() - $issuedAt;
-    if ($age < HW_FORM_MIN_SECONDS || $age > HW_FORM_MAX_AGE) {
+    if ($age < 0 || $age > HW_FORM_MAX_AGE) {
         return false;
     }
 
@@ -333,8 +333,7 @@ function hw_form_blocked(): bool
         || hw_honeypot_tripped()
         || !hw_verify_form_stamp($_POST['form_stamp'] ?? null)
         || !hw_verify_js_proof()
-        || hw_empty_client()
-        || hw_too_fast();
+        || hw_empty_client();
 }
 
 function hw_is_disposable_email(string $email): bool
@@ -612,6 +611,16 @@ function hw_old(array $old, string $key): string
 {
     $value = $old[$key] ?? '';
     return is_string($value) ? $value : '';
+}
+
+function hw_field_error(array $old, string $key): string
+{
+    $errors = $old['_errors'] ?? null;
+    if (!is_array($errors)) {
+        return '';
+    }
+    $msg = $errors[$key] ?? '';
+    return is_string($msg) ? $msg : '';
 }
 
 function hw_redirect(string $path): void

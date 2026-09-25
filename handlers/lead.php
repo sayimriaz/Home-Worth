@@ -29,23 +29,33 @@ if (hw_form_blocked()) {
     hw_redirect('');
 }
 
-if (hw_rate_limited('lead', HW_RATE_MAX_FORM)) {
-    hw_flash_old('lead', $old);
-    hw_flash('form_error', 'Too many submissions. Please wait a few minutes and try again.');
-    hw_redirect('');
+$errors = [];
+if (!hw_validate_name($name)) {
+    $errors['name'] = 'Enter a valid name using letters.';
+}
+if (!hw_validate_phone($phone)) {
+    $errors['phone'] = 'Enter a valid phone number with at least 10 digits.';
+}
+if (!hw_validate_email($email)) {
+    $errors['email'] = 'Enter a valid email address.';
+}
+if (strlen($location) < 3) {
+    $errors['location'] = 'Enter the property location.';
+}
+if (!hw_in_list($propertyType, HW_PROPERTY_TYPES)) {
+    $errors['property_type'] = 'Select the type of property.';
+}
+if (!hw_in_list($expectedPrice, HW_PRICE_RANGES)) {
+    $errors['expected_price'] = 'Select an expected price.';
+}
+if (!$consent) {
+    $errors['consent'] = 'Please accept the consent checkbox.';
 }
 
-$valid = hw_validate_name($name)
-    && hw_validate_phone($phone)
-    && hw_validate_email($email)
-    && strlen($location) >= 3
-    && hw_in_list($propertyType, HW_PROPERTY_TYPES)
-    && hw_in_list($expectedPrice, HW_PRICE_RANGES)
-    && $consent;
-
-if (!$valid) {
+if ($errors !== []) {
+    $old['_errors'] = $errors;
     hw_flash_old('lead', $old);
-    hw_flash('form_error', 'Please complete every field with valid information and accept the consent checkbox.');
+    hw_flash('form_error', (string) reset($errors));
     hw_redirect('');
 }
 
@@ -66,9 +76,9 @@ $lead = [
 ];
 
 hw_append_record(HW_LEADS_FILE, $lead);
-hw_rate_hit('lead');
 hw_send_mail('New Property Request ( ' . $name . ' ) - Home Worth', hw_lead_email($lead), $email);
 hw_rotate_csrf();
 $_SESSION['form_ready_at'] = time();
-hw_flash('thanks', 'lead');
-hw_redirect('thank-you');
+hw_flash('lead_ok', '1');
+header('Location: ' . hw_url() . '#lead');
+exit;

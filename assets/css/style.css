@@ -281,33 +281,6 @@ h1, h2, h3 {
   font-weight: 500;
   color: var(--ink);
 }
-.hero-points {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  list-style: none;
-  margin: 0 0 16px;
-  padding: 0;
-}
-.hero-points li {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: #f4f6fa;
-  color: var(--navy);
-  font-size: 12px;
-  font-weight: 600;
-}
-.hero-points li::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--gold);
-  box-shadow: 0 0 0 3px rgba(245, 196, 0, 0.18);
-}
 .hero-call {
   display: inline-flex;
   align-items: center;
@@ -339,7 +312,19 @@ h1, h2, h3 {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-.lead-form .field { display: grid; gap: 6px; }
+.lead-form .field,
+.contact-form .field { display: grid; gap: 6px; }
+.field-error {
+  color: #b42318;
+  font-size: 12px;
+  font-weight: 500;
+}
+.field.has-error input,
+.field.has-error textarea,
+.field.has-error .hw-select-btn,
+.consent.has-error {
+  border-color: #d32f2f;
+}
 .lead-form .field span {
   font-size: 13px;
   font-weight: 600;
@@ -1338,6 +1323,23 @@ h1, h2, h3 {
   gap: 16px;
   margin-bottom: 20px;
 }
+.admin-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-bulk-btn {
+  background: #d32f2f;
+  color: #fff;
+  border: 0;
+}
+.admin-bulk-btn:hover { background: #b71c1c; }
+.admin-bulk-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
 .admin-kicker {
   margin: 0 0 4px;
   color: var(--muted);
@@ -1410,8 +1412,21 @@ h1, h2, h3 {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
-.admin-app th:first-child,
-.admin-app td:first-child { width: 52px; }
+.admin-app th.admin-check,
+.admin-app td.admin-check {
+  width: 42px;
+  text-align: center;
+  padding-left: 14px;
+  padding-right: 8px;
+}
+.admin-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+.admin-app th:nth-child(2),
+.admin-app td:nth-child(2) { width: 52px; }
 .admin-app th.admin-actions,
 .admin-app td.admin-actions {
   width: 168px;
@@ -1515,6 +1530,44 @@ h1, h2, h3 {
   border-radius: 8px;
 }
 .admin-delete button:hover { background: #b71c1c; }
+.form-toast {
+  position: fixed;
+  top: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(460px, calc(100% - 32px));
+  padding: 14px 14px 14px 16px;
+  background: var(--navy);
+  color: #fff;
+  border-radius: 14px;
+  border-left: 5px solid var(--gold);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+.form-toast p {
+  margin: 0;
+  flex: 1;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+.form-toast [data-close] {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.form-toast [data-close]:hover { background: rgba(255, 255, 255, 0.16); }
 .admin-toast {
   position: fixed;
   inset: 0;

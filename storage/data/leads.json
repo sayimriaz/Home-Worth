@@ -1,1 +1,13 @@
-[]
+[
+    {
+        "type": "property_request",
+        "name": "test",
+        "phone": "123123123123",
+        "email": "isa@gmail.com",
+        "location": "test",
+        "property_type": "House",
+        "expected_price": "$100,000 - $250,000",
+        "id": "cb096f90d7e261d0",
+        "created_at": "2026-09-25T20:33:46+00:00"
+    }
+]

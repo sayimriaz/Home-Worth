@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/bootstrap.php';
 
 $thanks = hw_flash('thanks');
-if ($thanks === null) {
+if ($thanks !== 'contact') {
     hw_redirect('');
 }
 
@@ -26,11 +26,7 @@ require __DIR__ . '/includes/header.php';
             <div class="miss-overlay"></div>
             <div class="miss-content">
                 <h1>Thank you</h1>
-                <?php if ($thanks === 'lead'): ?>
-                    <p>Our team will be in contact with you shortly.</p>
-                <?php else: ?>
-                    <p>We will get in touch with you in 24 working hours.</p>
-                <?php endif; ?>
+                <p>We will get in touch with you in 24 working hours.</p>
                 <div class="miss-actions">
                     <a class="btn btn-gold" href="<?php echo hw_e(hw_url()); ?>">Back to Home</a>
                     <a class="btn btn-light" href="<?php echo hw_e(hw_url('contact')); ?>">Contact us</a>

@@ -12,9 +12,16 @@ $canonicalPath = '';
 $robots = 'index, follow';
 $formError = hw_flash('form_error');
 $old = hw_flash_old('lead');
+$leadOk = hw_flash('lead_ok') === '1';
 
 require __DIR__ . '/includes/header.php';
 ?>
+<?php if ($leadOk): ?>
+<div class="form-toast" id="lead-toast" role="status" aria-live="polite">
+    <p>Thank you. Our team will be in contact with you shortly.</p>
+    <button type="button" data-close aria-label="Close">×</button>
+</div>
+<?php endif; ?>
 
 <section class="hero">
     <div class="container">
@@ -22,15 +29,10 @@ require __DIR__ . '/includes/header.php';
         <div class="hero-photo">
             <img src="<?php echo hw_e(hw_url('assets/images/hero.webp')); ?>" alt="Sell your property with Home Worth">
         </div>
-        <div class="hero-board">
+        <div class="hero-board" id="lead">
             <p class="eyebrow">Home Worth - Real Estate</p>
             <h1>Sell Your Property with <span>Home Worth</span></h1>
             <p class="hero-sub">No Matter the Condition</p>
-            <ul class="hero-points">
-                <li>Instant cash offers</li>
-                <li>Transparent 3-step process</li>
-                <li>No waiting</li>
-            </ul>
             <a class="hero-call" href="tel:<?php echo hw_e(HW_PHONE_TEL); ?>">
                 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 7a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .58 3.6 1 1 0 0 1-.25 1z"/></svg>
                 <?php echo hw_e(HW_PHONE_DISPLAY); ?>
@@ -42,23 +44,27 @@ require __DIR__ . '/includes/header.php';
             <form class="lead-form" action="<?php echo hw_e(hw_url('handlers/lead.php')); ?>" method="post" novalidate>
                 <?php echo hw_form_shield_fields(); ?>
                 <div class="lead-grid">
-                    <label class="field">
+                    <label class="field<?php echo hw_field_error($old, 'name') !== '' ? ' has-error' : ''; ?>">
                         <span>Your Name</span>
                         <input type="text" name="name" placeholder="Full name" maxlength="80" required autocomplete="name" value="<?php echo hw_e(hw_old($old, 'name')); ?>">
+                        <?php if (hw_field_error($old, 'name') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'name')); ?></small><?php endif; ?>
                     </label>
-                    <label class="field">
+                    <label class="field<?php echo hw_field_error($old, 'phone') !== '' ? ' has-error' : ''; ?>">
                         <span>Phone</span>
                         <input type="tel" name="phone" placeholder="Phone number" maxlength="20" required autocomplete="tel" value="<?php echo hw_e(hw_old($old, 'phone')); ?>">
+                        <?php if (hw_field_error($old, 'phone') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'phone')); ?></small><?php endif; ?>
                     </label>
-                    <label class="field">
+                    <label class="field<?php echo hw_field_error($old, 'email') !== '' ? ' has-error' : ''; ?>">
                         <span>Your Email</span>
                         <input type="email" name="email" placeholder="Email address" maxlength="120" required autocomplete="email" value="<?php echo hw_e(hw_old($old, 'email')); ?>">
+                        <?php if (hw_field_error($old, 'email') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'email')); ?></small><?php endif; ?>
                     </label>
-                    <label class="field">
+                    <label class="field<?php echo hw_field_error($old, 'location') !== '' ? ' has-error' : ''; ?>">
                         <span>Property Location</span>
                         <input type="text" name="location" placeholder="City or address" maxlength="120" required value="<?php echo hw_e(hw_old($old, 'location')); ?>">
+                        <?php if (hw_field_error($old, 'location') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'location')); ?></small><?php endif; ?>
                     </label>
-                    <label class="field">
+                    <label class="field<?php echo hw_field_error($old, 'property_type') !== '' ? ' has-error' : ''; ?>">
                         <span>Type of Property</span>
                         <select name="property_type" required>
                             <option value="" disabled hidden<?php echo hw_old($old, 'property_type') === '' ? ' selected' : ''; ?>>Select type</option>
@@ -66,8 +72,9 @@ require __DIR__ . '/includes/header.php';
                                 <option value="<?php echo hw_e($type); ?>"<?php echo hw_old($old, 'property_type') === $type ? ' selected' : ''; ?>><?php echo hw_e($type); ?></option>
                             <?php endforeach; ?>
                         </select>
+                        <?php if (hw_field_error($old, 'property_type') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'property_type')); ?></small><?php endif; ?>
                     </label>
-                    <label class="field">
+                    <label class="field<?php echo hw_field_error($old, 'expected_price') !== '' ? ' has-error' : ''; ?>">
                         <span>Expected Price</span>
                         <select name="expected_price" required>
                             <option value="" disabled hidden<?php echo hw_old($old, 'expected_price') === '' ? ' selected' : ''; ?>>Select range</option>
@@ -75,13 +82,15 @@ require __DIR__ . '/includes/header.php';
                                 <option value="<?php echo hw_e($range); ?>"<?php echo hw_old($old, 'expected_price') === $range ? ' selected' : ''; ?>><?php echo hw_e($range); ?></option>
                             <?php endforeach; ?>
                         </select>
+                        <?php if (hw_field_error($old, 'expected_price') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'expected_price')); ?></small><?php endif; ?>
                     </label>
                 </div>
-                <label class="consent">
+                <label class="consent<?php echo hw_field_error($old, 'consent') !== '' ? ' has-error' : ''; ?>">
                     <input type="checkbox" name="consent" value="1" required<?php echo hw_old($old, 'consent') === '1' ? ' checked' : ''; ?>>
                     <span class="consent-box" aria-hidden="true"></span>
                     <span class="consent-text"><em>*</em> By submitting this form, you agree to receive calls and messages from our team.</span>
                 </label>
+                <?php if (hw_field_error($old, 'consent') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'consent')); ?></small><?php endif; ?>
                 <button class="btn btn-gold" type="submit">Get your price today!</button>
             </form>
         </div>

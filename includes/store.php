@@ -222,6 +222,45 @@ function hw_delete_record(string $path, string $id): bool
     return $found && hw_write_json($path, array_values($kept));
 }
 
+function hw_delete_records(string $path, array $ids): int
+{
+    if ($path !== HW_LEADS_FILE && $path !== HW_MESSAGES_FILE) {
+        return 0;
+    }
+
+    $wanted = [];
+    foreach ($ids as $id) {
+        $id = (string) $id;
+        if (preg_match('/^[a-f0-9]{16}$/', $id)) {
+            $wanted[$id] = true;
+        }
+    }
+    if ($wanted === []) {
+        return 0;
+    }
+
+    $data = hw_read_json($path);
+    $kept = [];
+    $removed = 0;
+    foreach ($data as $row) {
+        if (!is_array($row)) {
+            continue;
+        }
+        $rowId = (string) ($row['id'] ?? '');
+        if ($rowId !== '' && isset($wanted[$rowId])) {
+            $removed++;
+            continue;
+        }
+        $kept[] = $row;
+    }
+
+    if ($removed === 0) {
+        return 0;
+    }
+
+    return hw_write_json($path, array_values($kept)) ? $removed : 0;
+}
+
 function hw_update_admin_password(string $password): bool
 {
     $admin = hw_read_json(HW_ADMIN_FILE);
