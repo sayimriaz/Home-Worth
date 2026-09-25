@@ -26,6 +26,8 @@ function hw_send_mail(string $subject, string $body, ?string $replyTo = null): b
         'MIME-Version: 1.0',
         'Content-Type: text/plain; charset=UTF-8',
         'From: ' . HW_SITE_NAME . ' <' . $from . '>',
+        'Sender: ' . $from,
+        'Date: ' . date('r'),
         'X-Mailer: HomeWorth',
     ];
 
@@ -34,7 +36,15 @@ function hw_send_mail(string $subject, string $body, ?string $replyTo = null): b
     }
 
     $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
-    return @mail($to, $encodedSubject, $body, implode("\r\n", $headers));
+    $payload = str_replace(["\r\n", "\r"], "\n", $body);
+    $headerLine = implode("\r\n", $headers);
+    $isWindows = strncasecmp(PHP_OS, 'WIN', 3) === 0;
+
+    if ($isWindows) {
+        return @mail($to, $encodedSubject, $payload, $headerLine);
+    }
+
+    return @mail($to, $encodedSubject, $payload, $headerLine, '-f' . $from);
 }
 
 function hw_lead_email(array $lead): string
