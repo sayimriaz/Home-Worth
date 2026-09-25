@@ -25,7 +25,7 @@ $old = [
 
 if (hw_form_blocked()) {
     hw_flash_old('lead', $old);
-    hw_flash('form_error', 'Please try again.');
+    hw_flash('form_error', hw_form_block_reason());
     hw_redirect('');
 }
 
@@ -59,9 +59,14 @@ if ($errors !== []) {
     hw_redirect('');
 }
 
-if (hw_is_disposable_email($email) || hw_text_has_spam($name, $email, $location)) {
+if (hw_is_disposable_email($email)) {
     hw_flash_old('lead', $old);
-    hw_flash('form_error', 'Please try again.');
+    hw_flash('form_error', 'Use a regular email address.');
+    hw_redirect('');
+}
+if (hw_text_has_spam($name, $email, $location)) {
+    hw_flash_old('lead', $old);
+    hw_flash('form_error', 'Please remove links or promotional text and try again.');
     hw_redirect('');
 }
 

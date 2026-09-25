@@ -21,6 +21,11 @@ require __DIR__ . '/includes/header.php';
     <p>Thank you. Our team will be in contact with you shortly.</p>
     <button type="button" data-close aria-label="Close">×</button>
 </div>
+<style>
+#lead-toast{position:fixed;top:96px;left:50%;transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:12px;width:min(460px,calc(100% - 32px));padding:14px 14px 14px 16px;background:#151d31;color:#fff;border-radius:14px;border-left:5px solid #f5c400;box-shadow:0 16px 40px rgba(0,0,0,.28)}
+#lead-toast p{margin:0;flex:1;color:#fff;font-size:14px;font-weight:500;line-height:1.45}
+#lead-toast [data-close]{flex:0 0 auto;width:32px;height:32px;border:0;border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-size:20px;line-height:1;cursor:pointer}
+</style>
 <?php endif; ?>
 
 <section class="hero">

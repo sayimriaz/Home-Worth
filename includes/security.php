@@ -297,17 +297,17 @@ function hw_form_shield_fields(): string
 {
     return hw_csrf_field()
         . '<div class="hp" aria-hidden="true">'
-        . '<label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>'
-        . '<label>Company<input type="text" name="company" tabindex="-1" autocomplete="off"></label>'
-        . '<label>Fax<input type="text" name="fax" tabindex="-1" autocomplete="off"></label>'
+        . '<label>Leave blank<input type="text" name="hw_hp_a" tabindex="-1" autocomplete="off"></label>'
+        . '<label>Leave blank<input type="text" name="hw_hp_b" tabindex="-1" autocomplete="off"></label>'
+        . '<label>Leave blank<input type="text" name="hw_hp_c" tabindex="-1" autocomplete="off"></label>'
         . '</div>'
         . '<input type="hidden" name="form_stamp" value="' . hw_e(hw_form_stamp()) . '">'
-        . '<input type="hidden" name="form_js" value="">';
+        . '<input type="hidden" name="form_js" value="ok">';
 }
 
 function hw_honeypot_tripped(): bool
 {
-    foreach (['website', 'company', 'fax'] as $field) {
+    foreach (['hw_hp_a', 'hw_hp_b', 'hw_hp_c'] as $field) {
         if (trim((string) ($_POST[$field] ?? '')) !== '') {
             return true;
         }
@@ -332,8 +332,21 @@ function hw_form_blocked(): bool
         || !hw_verify_csrf($_POST['csrf'] ?? null)
         || hw_honeypot_tripped()
         || !hw_verify_form_stamp($_POST['form_stamp'] ?? null)
-        || !hw_verify_js_proof()
         || hw_empty_client();
+}
+
+function hw_form_block_reason(): string
+{
+    if (hw_honeypot_tripped()) {
+        return 'Please try again.';
+    }
+    if (!hw_verify_csrf($_POST['csrf'] ?? null) || !hw_verify_form_stamp($_POST['form_stamp'] ?? null)) {
+        return 'Your session expired. Submit the form again.';
+    }
+    if (!hw_same_origin() || hw_empty_client()) {
+        return 'Please submit the form from this website.';
+    }
+    return 'Please try again.';
 }
 
 function hw_is_disposable_email(string $email): bool

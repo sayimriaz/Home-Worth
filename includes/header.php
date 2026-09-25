@@ -56,7 +56,7 @@ if (str_contains($robots, 'noindex')) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?php echo hw_e(hw_url('assets/css/style.css')); ?>">
+    <link rel="stylesheet" href="<?php echo hw_e(hw_url('assets/css/style.css') . '?v=' . filemtime(HW_ROOT . '/assets/css/style.css')); ?>">
     <?php if (!str_contains($robots, 'noindex')): ?>
     <script type="application/ld+json">
     <?php echo json_encode([

@@ -91,7 +91,7 @@ $pageTitle = $needsSetup ? 'Create Admin – Home Worth' : 'Admin Login – Home
             <form method="post" autocomplete="off">
                 <?php echo hw_csrf_field(); ?>
                 <div class="hp" aria-hidden="true">
-                    <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+                    <label>Leave blank<input type="text" name="hw_hp_a" tabindex="-1" autocomplete="off"></label>
                 </div>
                 <label class="field">
                     <span>Username</span>
