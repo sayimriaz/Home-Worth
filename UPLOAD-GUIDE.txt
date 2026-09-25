@@ -1,0 +1,29 @@
+Home Worth — upload guide
+=========================
+
+1. Back up the current WordPress site first.
+2. In cPanel File Manager (or FTP), open public_html.
+3. Remove the old WordPress files (wp-admin, wp-content, wp-includes, wp-config.php, index.php, .htaccess).
+   Do not delete mail or hosting folders outside public_html.
+4. Upload EVERYTHING from this project folder into public_html.
+5. Do not upload this UPLOAD-GUIDE.txt file.
+6. Visit https://homeworthofficial.com/bGGIqmm
+7. Create the first admin username and password (12+ characters, letters and numbers).
+   This setup form disappears after the account is created.
+8. Submit a test property form and confirm:
+   - the thank-you page appears
+   - the entry shows in the admin panel
+   - an email arrives at info@homeworthofficial.com
+9. The admin path can be changed later under Settings.
+
+If email does not arrive, check cPanel → Email Deliverability and spam.
+Form entries are still saved in the admin panel even if mail is delayed.
+
+If you forget the admin password, delete this file on the server and visit the admin path again:
+storage/data/admin.json
+
+Do not make storage/, includes/, or admin/ publicly listable.
+The site already blocks those folders.
+
+After upload, set folder permission 755 on storage/ and storage/data/
+so the forms can save entries.

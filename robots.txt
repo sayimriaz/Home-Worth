@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /handlers/
+Disallow: /includes/
+Disallow: /storage/
+Disallow: /thank-you
+Disallow: /thank-you/
+
+Sitemap: https://homeworthofficial.com/sitemap.xml

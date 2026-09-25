@@ -1,0 +1,55 @@
+Options -Indexes -MultiViews
+ServerSignature Off
+ErrorDocument 404 /404.php
+ErrorDocument 403 /404.php
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+<Files "UPLOAD-GUIDE.txt">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Deny from all
+  </IfModule>
+</Files>
+
+<FilesMatch "(?i)\.(json|log|sql|bak|env|ini|md)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  RewriteRule ^storage(/.*)?$ - [F,L]
+  RewriteRule ^includes(/.*)?$ - [F,L]
+  RewriteRule ^admin(/.*)?$ - [F,L]
+
+  RewriteCond %{REQUEST_METHOD} !^POST$
+  RewriteRule ^handlers/ - [F,L]
+
+  RewriteRule ^contact/?$ contact.php [L,QSA]
+  RewriteRule ^privacy-policy/?$ privacy.php [L,QSA]
+  RewriteRule ^privacy/?$ privacy.php [L,QSA]
+  RewriteRule ^thank-you/?$ thank-you.php [L,QSA]
+  RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ router.php [L,QSA]
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType image/webp .webp
+</IfModule>
