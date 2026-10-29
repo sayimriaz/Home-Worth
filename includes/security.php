@@ -180,6 +180,12 @@ function hw_icon(string $name): string
         'mail' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm8 7 7.5-6h-15L12 13zm0-2L4.8 7h14.4L12 11z"/></svg>',
         'settings' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.1 12.7a7.6 7.6 0 0 0 .1-1.4 7.6 7.6 0 0 0-.1-1.4l2-1.6-1.9-3.3-2.4 1a7.4 7.4 0 0 0-2.4-1.4l-.4-2.6h-3.8l-.4 2.6a7.4 7.4 0 0 0-2.4 1.4l-2.4-1-1.9 3.3 2 1.6a7.6 7.6 0 0 0-.1 1.4 7.6 7.6 0 0 0 .1 1.4l-2 1.6 1.9 3.3 2.4-1a7.4 7.4 0 0 0 2.4 1.4l.4 2.6h3.8l.4-2.6a7.4 7.4 0 0 0 2.4-1.4l2.4 1 1.9-3.3-2-1.6zM12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5z"/></svg>',
         'logout' => '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M10 4h8v16h-8v-2h6V6h-6V4zm-1.8 5.2L6.6 11H14v2H6.6l1.6 1.8L6.8 16 3 12l3.8-4 1.4 1.2z"/></svg>',
+        'search' => '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M10 3a7 7 0 0 1 5.5 11.3l4.1 4.1-1.4 1.4-4.1-4.1A7 7 0 1 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>',
+        'view' => '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M12 5c5 0 9.3 3.1 11 7-1.7 3.9-6 7-11 7S2.7 15.9 1 12c1.7-3.9 6-7 11-7zm0 2c-3.9 0-7.2 2.3-8.8 5 1.6 2.7 4.9 5 8.8 5s7.2-2.3 8.8-5C19.2 9.3 15.9 7 12 7zm0 2.5A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5z"/></svg>',
+        'download' => '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M11 3h2v10.2l3.2-3.2 1.4 1.4L12 17.2 6.4 11.4l1.4-1.4L11 13.2V3zM4 19h16v2H4z"/></svg>',
+        'trash' => '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h5v2H3V5h5l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9zM5 21h14l-1-11H6L5 21z"/></svg>',
+        'export' => '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M5 3h10l4 4v14H5V3zm10 1.8V8h3.2L15 4.8zM8 11h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>',
+        'close' => '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6 6.4 5z"/></svg>',
     ];
     return $icons[$name] ?? '';
 }

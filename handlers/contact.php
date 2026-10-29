@@ -25,11 +25,8 @@ $errors = [];
 if (!hw_validate_name($name)) {
     $errors['name'] = 'Enter a valid name using letters.';
 }
-if (!hw_validate_email($email)) {
+if ($email !== '' && !hw_validate_email($email)) {
     $errors['email'] = 'Enter a valid email address.';
-}
-if (strlen($message) < 10) {
-    $errors['message'] = 'Enter a message of at least 10 characters.';
 }
 
 if ($errors !== []) {
@@ -39,7 +36,7 @@ if ($errors !== []) {
     hw_redirect('contact');
 }
 
-if (hw_is_disposable_email($email)) {
+if ($email !== '' && hw_is_disposable_email($email)) {
     hw_flash_old('contact', $old);
     hw_flash('form_error', 'Use a regular email address.');
     hw_redirect('contact');

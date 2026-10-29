@@ -9,6 +9,7 @@ if (!defined('HW_APP')) {
 
 const HW_SITE_NAME = 'Home Worth';
 const HW_SITE_TAGLINE = 'Unlocking Real Estate Success Together';
+const HW_SITE_URL = 'https://homeworthofficial.com';
 const HW_PHONE_DISPLAY = '+1 (469) 906-0714';
 const HW_PHONE_TEL = '+14699060714';
 const HW_EMAIL_INFO = 'info@homeworthofficial.com';
@@ -39,7 +40,7 @@ const HW_ADMIN_SLUG_DEFAULT = 'bGGIqmm';
 const HW_ADMIN_SLUG_RESERVED = [
     'admin', 'contact', 'privacy', 'privacy-policy', 'thank-you', 'thanks',
     'assets', 'handlers', 'includes', 'storage', 'login', 'logout',
-    'dashboard', 'settings', 'index', 'index.php', 'robots.txt', 'favicon',
+    'dashboard', 'settings', 'form', 'index', 'index.php', 'robots.txt', 'favicon',
     'css', 'js', 'images', 'img',
 ];
 

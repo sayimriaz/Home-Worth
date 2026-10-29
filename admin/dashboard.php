@@ -7,6 +7,15 @@ hw_require_admin();
 
 $notice = hw_flash('admin_notice') ?? '';
 $tab = (string) ($_GET['tab'] ?? 'leads');
+$search = hw_clean_text((string) ($_GET['q'] ?? ''), 80);
+$dateFrom = (string) ($_GET['from'] ?? '');
+$dateTo = (string) ($_GET['to'] ?? '');
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) {
+    $dateFrom = '';
+}
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) {
+    $dateTo = '';
+}
 if ($tab === 'password') {
     $tab = 'settings';
 }
@@ -58,7 +67,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         } else {
             hw_flash('admin_notice', 'Could not delete that entry.');
         }
-        header('Location: ' . hw_admin_url('dashboard') . '?tab=' . rawurlencode($tab) . '&page=' . $pageAfter);
+        $search = hw_clean_text((string) ($_POST['q'] ?? ''), 80);
+        $dateFrom = (string) ($_POST['from'] ?? '');
+        $dateTo = (string) ($_POST['to'] ?? '');
+        header('Location: ' . hw_admin_url('dashboard') . hw_admin_filter_query($tab, $search, $dateFrom, $dateTo, $pageAfter));
         exit;
     } elseif ($action === 'bulk_delete') {
         $type = (string) ($_POST['type'] ?? '');
@@ -74,13 +86,19 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         } else {
             hw_flash('admin_notice', 'Select at least one entry to delete.');
         }
-        header('Location: ' . hw_admin_url('dashboard') . '?tab=' . rawurlencode($tab) . '&page=' . $pageAfter);
+        $search = hw_clean_text((string) ($_POST['q'] ?? ''), 80);
+        $dateFrom = (string) ($_POST['from'] ?? '');
+        $dateTo = (string) ($_POST['to'] ?? '');
+        header('Location: ' . hw_admin_url('dashboard') . hw_admin_filter_query($tab, $search, $dateFrom, $dateTo, $pageAfter));
         exit;
     }
 }
 
-$leads = array_reverse(hw_read_json(HW_LEADS_FILE));
-$messages = array_reverse(hw_read_json(HW_MESSAGES_FILE));
+$leadsAll = array_reverse(hw_read_json(HW_LEADS_FILE));
+$messagesAll = array_reverse(hw_read_json(HW_MESSAGES_FILE));
+$leads = hw_admin_filter_records($leadsAll, $search, $dateFrom, $dateTo);
+$messages = hw_admin_filter_records($messagesAll, $search, $dateFrom, $dateTo);
+$filterQs = hw_admin_filter_query($tab, $search, $dateFrom, $dateTo);
 
 if (isset($_GET['export']) && $_GET['export'] === 'csv' && ($tab === 'leads' || $tab === 'messages')) {
     if ($tab === 'leads') {
@@ -120,7 +138,9 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv' && ($tab === 'leads' || 
 }
 
 $items = $tab === 'messages' ? $messages : $leads;
+$allCount = $tab === 'messages' ? count($messagesAll) : count($leadsAll);
 $total = count($items);
+$filtersOn = $search !== '' || $dateFrom !== '' || $dateTo !== '';
 $pages = max(1, (int) ceil($total / HW_ADMIN_PER_PAGE));
 $page = max(1, (int) ($_GET['page'] ?? 1));
 if ($page > $pages) {
@@ -161,12 +181,12 @@ $titles = [
         </a>
         <nav class="admin-nav">
             <a class="<?php echo $tab === 'leads' ? 'is-active' : ''; ?>" href="?tab=leads">
-                <span class="admin-nav-main"><?php echo hw_icon('house'); ?> Property requests</span>
-                <b><?php echo count($leads); ?></b>
+                <span class="admin-nav-main"><?php echo hw_icon('house'); ?> Requests</span>
+                <b><?php echo count($leadsAll); ?></b>
             </a>
             <a class="<?php echo $tab === 'messages' ? 'is-active' : ''; ?>" href="?tab=messages">
-                <span class="admin-nav-main"><?php echo hw_icon('mail'); ?> Contact messages</span>
-                <b><?php echo count($messages); ?></b>
+                <span class="admin-nav-main"><?php echo hw_icon('mail'); ?> Messages</span>
+                <b><?php echo count($messagesAll); ?></b>
             </a>
             <a class="<?php echo $tab === 'settings' ? 'is-active' : ''; ?>" href="?tab=settings">
                 <span class="admin-nav-main"><?php echo hw_icon('settings'); ?> Settings</span>
@@ -189,16 +209,56 @@ $titles = [
                     <?php endif; ?>
                 </h1>
                 <?php if ($tab === 'leads' || $tab === 'messages'): ?>
-                    <p class="admin-range"><?php echo $total === 0 ? 'No entries yet.' : 'Showing ' . $from . '–' . $to . ' of ' . $total; ?></p>
+                    <p class="admin-range"><?php
+                        if ($allCount === 0) {
+                            echo 'No entries yet.';
+                        } elseif ($total === 0) {
+                            echo 'No matching entries.';
+                        } else {
+                            echo 'Showing ' . $from . '–' . $to . ' of ' . $total . ($filtersOn ? ' (filtered)' : '');
+                        }
+                    ?></p>
                 <?php endif; ?>
             </div>
-            <?php if ($tab === 'leads' || $tab === 'messages'): ?>
-                <div class="admin-top-actions">
-                    <button type="submit" class="btn admin-bulk-btn" id="bulk-delete-btn" form="bulk-delete" disabled>Delete selected</button>
-                    <button type="button" class="btn btn-gold" id="export-btn" data-href="?tab=<?php echo hw_e($tab); ?>&amp;export=csv">Export</button>
-                </div>
-            <?php endif; ?>
         </header>
+        <?php if ($tab === 'leads' || $tab === 'messages'): ?>
+            <div class="admin-toolbar">
+                <form class="admin-search" method="get">
+                    <input type="hidden" name="tab" value="<?php echo hw_e($tab); ?>">
+                    <label class="admin-search-date">
+                        <span>Search</span>
+                        <span class="admin-search-q">
+                            <?php echo hw_icon('search'); ?>
+                            <input type="search" name="q" value="<?php echo hw_e($search); ?>" placeholder="Name, phone, location, ZIP" maxlength="80">
+                        </span>
+                    </label>
+                    <label class="admin-search-date">
+                        <span>From</span>
+                        <span class="hw-date" data-date>
+                            <input type="hidden" name="from" value="<?php echo hw_e($dateFrom); ?>">
+                            <button type="button" class="hw-date-btn" aria-label="From date"></button>
+                        </span>
+                    </label>
+                    <label class="admin-search-date">
+                        <span>To</span>
+                        <span class="hw-date" data-date>
+                            <input type="hidden" name="to" value="<?php echo hw_e($dateTo); ?>">
+                            <button type="button" class="hw-date-btn" aria-label="To date"></button>
+                        </span>
+                    </label>
+                    <button class="admin-tool" type="submit"><?php echo hw_icon('search'); ?> Search</button>
+                    <?php if ($filtersOn): ?>
+                        <a class="admin-tool admin-tool-danger" href="?tab=<?php echo hw_e($tab); ?>"><?php echo hw_icon('close'); ?> Clear</a>
+                    <?php endif; ?>
+                </form>
+                <div class="admin-tools">
+                    <button type="button" class="admin-tool" id="view-form-btn" data-url="<?php echo hw_e(hw_admin_url('form')); ?>" data-type="<?php echo hw_e($tab); ?>"><?php echo hw_icon('view'); ?> View</button>
+                    <button type="button" class="admin-tool admin-tool-gold" id="download-form-btn" data-url="<?php echo hw_e(hw_admin_url('form')); ?>" data-type="<?php echo hw_e($tab); ?>"><?php echo hw_icon('download'); ?> Download</button>
+                    <button type="submit" class="admin-tool admin-tool-danger" id="bulk-delete-btn" form="bulk-delete" disabled><?php echo hw_icon('trash'); ?> Delete</button>
+                    <button type="button" class="admin-tool admin-tool-gold" id="export-btn" data-href="<?php echo hw_e($filterQs . '&export=csv'); ?>"><?php echo hw_icon('export'); ?> Export</button>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <?php if ($notice !== ''): ?>
             <p class="admin-flash" role="status"><?php echo hw_e($notice); ?></p>
@@ -236,9 +296,13 @@ $titles = [
                     <button class="btn btn-gold" type="submit">Update password</button>
                 </form>
             </section>
-        <?php elseif ($total === 0): ?>
+        <?php elseif ($allCount === 0): ?>
             <section class="admin-card">
                 <p class="admin-empty"><?php echo $tab === 'leads' ? 'No property requests yet.' : 'No contact messages yet.'; ?></p>
+            </section>
+        <?php elseif ($total === 0): ?>
+            <section class="admin-card">
+                <p class="admin-empty">No entries match that search.</p>
             </section>
         <?php else: ?>
             <section class="admin-card">
@@ -247,26 +311,29 @@ $titles = [
                     <input type="hidden" name="action" value="bulk_delete">
                     <input type="hidden" name="type" value="<?php echo hw_e($tab); ?>">
                     <input type="hidden" name="page" value="<?php echo $page; ?>">
+                    <input type="hidden" name="q" value="<?php echo hw_e($search); ?>">
+                    <input type="hidden" name="from" value="<?php echo hw_e($dateFrom); ?>">
+                    <input type="hidden" name="to" value="<?php echo hw_e($dateTo); ?>">
                 </form>
                 <div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
                                 <th class="admin-check"><input type="checkbox" id="select-all" aria-label="Select all"></th>
-                                <th>#</th>
+                                <th class="admin-col-num">#</th>
                                 <?php if ($tab === 'leads'): ?>
-                                    <th>Date</th>
-                                    <th>Name</th>
-                                    <th>Phone</th>
-                                    <th>Email</th>
-                                    <th>Location</th>
-                                    <th>Type</th>
-                                    <th>Expected price</th>
+                                    <th class="admin-col-date">Date</th>
+                                    <th class="admin-col-name">Name</th>
+                                    <th class="admin-col-phone">Phone</th>
+                                    <th class="admin-col-email">Email</th>
+                                    <th class="admin-col-location">Location</th>
+                                    <th class="admin-col-type">Type</th>
+                                    <th class="admin-col-price">Expected price</th>
                                 <?php else: ?>
-                                    <th>Date</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Message</th>
+                                    <th class="admin-col-date">Date</th>
+                                    <th class="admin-col-name">Name</th>
+                                    <th class="admin-col-email">Email</th>
+                                    <th class="admin-col-message">Message</th>
                                 <?php endif; ?>
                                 <th class="admin-actions">Actions</th>
                             </tr>
@@ -279,15 +346,21 @@ $titles = [
                                             <input type="checkbox" name="ids[]" form="bulk-delete" class="row-check" value="<?php echo hw_e((string) $row['id']); ?>" aria-label="Select row <?php echo $from + $index; ?>">
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo $from + $index; ?></td>
+                                    <td class="admin-col-num"><?php echo $from + $index; ?></td>
                                     <?php if ($tab === 'leads'): ?>
-                                        <td><?php echo hw_e(hw_admin_date(isset($row['created_at']) ? (string) $row['created_at'] : null)); ?></td>
-                                        <td><?php echo hw_e((string) ($row['name'] ?? '')); ?></td>
-                                        <td><?php echo hw_e((string) ($row['phone'] ?? '')); ?></td>
-                                        <td><?php echo hw_e((string) ($row['email'] ?? '')); ?></td>
-                                        <td><?php echo hw_e((string) ($row['location'] ?? '')); ?></td>
-                                        <td><?php echo hw_e((string) ($row['property_type'] ?? '')); ?></td>
-                                        <td><?php echo hw_e((string) ($row['expected_price'] ?? '')); ?></td>
+                                        <?php
+                                        $leadName = (string) ($row['name'] ?? '');
+                                        $leadEmail = (string) ($row['email'] ?? '');
+                                        $leadLocation = (string) ($row['location'] ?? '');
+                                        $leadPrice = (string) ($row['expected_price'] ?? '');
+                                        ?>
+                                        <td class="admin-col-date"><?php echo hw_e(hw_admin_date(isset($row['created_at']) ? (string) $row['created_at'] : null)); ?></td>
+                                        <td class="admin-col-name" title="<?php echo hw_e($leadName); ?>"><?php echo hw_e($leadName); ?></td>
+                                        <td class="admin-col-phone"><?php echo hw_e((string) ($row['phone'] ?? '')); ?></td>
+                                        <td class="admin-col-email" title="<?php echo hw_e($leadEmail); ?>"><?php echo hw_e($leadEmail); ?></td>
+                                        <td class="admin-col-location" title="<?php echo hw_e($leadLocation); ?>"><?php echo hw_e($leadLocation); ?></td>
+                                        <td class="admin-col-type"><?php echo hw_e((string) ($row['property_type'] ?? '')); ?></td>
+                                        <td class="admin-col-price" title="<?php echo hw_e($leadPrice); ?>"><?php echo hw_e($leadPrice); ?></td>
                                     <?php else: ?>
                                         <?php
                                         $msgDate = hw_admin_date(isset($row['created_at']) ? (string) $row['created_at'] : null);
@@ -295,31 +368,28 @@ $titles = [
                                         $msgEmail = (string) ($row['email'] ?? '');
                                         $msgBody = (string) ($row['message'] ?? '');
                                         ?>
-                                        <td><?php echo hw_e($msgDate); ?></td>
-                                        <td><?php echo hw_e($msgName); ?></td>
-                                        <td><?php echo hw_e($msgEmail); ?></td>
-                                        <td class="admin-msg"><?php echo hw_e(hw_preview($msgBody)); ?></td>
+                                        <td class="admin-col-date"><?php echo hw_e($msgDate); ?></td>
+                                        <td class="admin-col-name"><?php echo hw_e($msgName); ?></td>
+                                        <td class="admin-col-email"><?php echo hw_e($msgEmail); ?></td>
+                                        <td class="admin-col-message admin-msg"><?php echo hw_e(hw_preview($msgBody)); ?></td>
                                     <?php endif; ?>
                                     <td class="admin-actions">
-                                        <?php if ($tab === 'messages'): ?>
-                                            <button
-                                                type="button"
-                                                class="admin-view"
-                                                data-date="<?php echo hw_e($msgDate); ?>"
-                                                data-name="<?php echo hw_e($msgName); ?>"
-                                                data-email="<?php echo hw_e($msgEmail); ?>"
-                                                data-message="<?php echo hw_e($msgBody); ?>"
-                                            >View</button>
-                                        <?php endif; ?>
                                         <?php if (!empty($row['id'])): ?>
-                                            <form method="post" class="admin-delete">
-                                                <?php echo hw_csrf_field(); ?>
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="type" value="<?php echo hw_e($tab); ?>">
-                                                <input type="hidden" name="id" value="<?php echo hw_e((string) $row['id']); ?>">
-                                                <input type="hidden" name="page" value="<?php echo $page; ?>">
-                                                <button type="submit">Delete</button>
-                                            </form>
+                                            <div class="admin-action-stack">
+                                                <a class="admin-form-view" href="<?php echo hw_e(hw_admin_url('form') . '?type=' . rawurlencode($tab) . '&id=' . rawurlencode((string) $row['id'])); ?>" aria-label="View" title="View"><?php echo hw_icon('view'); ?></a>
+                                                <a class="admin-form-download" href="<?php echo hw_e(hw_admin_url('form') . '?type=' . rawurlencode($tab) . '&id=' . rawurlencode((string) $row['id']) . '&download=1'); ?>" aria-label="Download" title="Download"><?php echo hw_icon('download'); ?></a>
+                                                <form method="post" class="admin-delete">
+                                                    <?php echo hw_csrf_field(); ?>
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <input type="hidden" name="type" value="<?php echo hw_e($tab); ?>">
+                                                    <input type="hidden" name="id" value="<?php echo hw_e((string) $row['id']); ?>">
+                                                    <input type="hidden" name="page" value="<?php echo $page; ?>">
+                                                    <input type="hidden" name="q" value="<?php echo hw_e($search); ?>">
+                                                    <input type="hidden" name="from" value="<?php echo hw_e($dateFrom); ?>">
+                                                    <input type="hidden" name="to" value="<?php echo hw_e($dateTo); ?>">
+                                                    <button type="submit" aria-label="Delete" title="Delete"><?php echo hw_icon('trash'); ?></button>
+                                                </form>
+                                            </div>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -327,29 +397,45 @@ $titles = [
                         </tbody>
                     </table>
                 </div>
+                <?php if ($pages > 1): ?>
+                    <nav class="admin-pages" aria-label="Pagination">
+                        <?php if ($page > 1): ?>
+                            <a class="admin-page-nav" href="<?php echo hw_e(hw_admin_filter_query($tab, $search, $dateFrom, $dateTo, $page - 1)); ?>">Previous</a>
+                        <?php else: ?>
+                            <span class="admin-page-nav is-disabled">Previous</span>
+                        <?php endif; ?>
+                        <div class="admin-page-nums">
+                            <?php foreach (hw_admin_page_list($page, $pages) as $item): ?>
+                                <?php if ($item === 0): ?>
+                                    <span class="admin-page-gap">…</span>
+                                <?php elseif ($item === $page): ?>
+                                    <span class="admin-page-num is-current" aria-current="page"><?php echo $item; ?></span>
+                                <?php else: ?>
+                                    <a class="admin-page-num" href="<?php echo hw_e(hw_admin_filter_query($tab, $search, $dateFrom, $dateTo, $item)); ?>"><?php echo $item; ?></a>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php if ($page < $pages): ?>
+                            <a class="admin-page-nav" href="<?php echo hw_e(hw_admin_filter_query($tab, $search, $dateFrom, $dateTo, $page + 1)); ?>">Next</a>
+                        <?php else: ?>
+                            <span class="admin-page-nav is-disabled">Next</span>
+                        <?php endif; ?>
+                    </nav>
+                <?php endif; ?>
             </section>
-            <?php if ($pages > 1): ?>
-                <nav class="admin-pages" aria-label="Pagination">
-                    <?php if ($page > 1): ?>
-                        <a href="?tab=<?php echo hw_e($tab); ?>&amp;page=<?php echo $page - 1; ?>">Previous</a>
-                    <?php endif; ?>
-                    <span>Page <?php echo $page; ?> of <?php echo $pages; ?></span>
-                    <?php if ($page < $pages): ?>
-                        <a href="?tab=<?php echo hw_e($tab); ?>&amp;page=<?php echo $page + 1; ?>">Next</a>
-                    <?php endif; ?>
-                </nav>
-            <?php endif; ?>
         <?php endif; ?>
     </div>
 
-    <div class="admin-drawer" id="msg-drawer" hidden>
-        <div class="admin-drawer-card" role="dialog" aria-labelledby="msg-drawer-title">
-            <div class="admin-drawer-head">
-                <h2 id="msg-drawer-title">Message</h2>
-                <button type="button" class="admin-drawer-close" data-close aria-label="Close">×</button>
+    <div class="hw-form-modal" id="form-modal" hidden>
+        <div class="hw-form-modal-panel" role="dialog" aria-modal="true" aria-labelledby="form-modal-title">
+            <div class="hw-form-modal-bar">
+                <p id="form-modal-title">Form</p>
+                <div>
+                    <button type="button" id="form-modal-print">Print / Save as PDF</button>
+                    <button type="button" class="ghost" id="form-modal-close">Close</button>
+                </div>
             </div>
-            <p class="admin-drawer-meta" data-meta></p>
-            <div class="admin-drawer-body" data-body></div>
+            <iframe id="form-modal-frame" title="Form preview"></iframe>
         </div>
     </div>
     <div class="admin-toast" id="confirm-toast" hidden>

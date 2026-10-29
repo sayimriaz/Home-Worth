@@ -59,18 +59,18 @@ require __DIR__ . '/includes/header.php';
                 <form class="contact-form" action="<?php echo hw_e(hw_url('handlers/contact.php')); ?>" method="post" novalidate>
                     <?php echo hw_form_shield_fields(); ?>
                     <label class="field<?php echo hw_field_error($old, 'name') !== '' ? ' has-error' : ''; ?>">
-                        <span>Your Name</span>
+                        <span>Your Name *</span>
                         <input type="text" name="name" placeholder="Your Name" maxlength="80" required autocomplete="name" value="<?php echo hw_e(hw_old($old, 'name')); ?>">
                         <?php if (hw_field_error($old, 'name') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'name')); ?></small><?php endif; ?>
                     </label>
                     <label class="field<?php echo hw_field_error($old, 'email') !== '' ? ' has-error' : ''; ?>">
                         <span>Your Email</span>
-                        <input type="email" name="email" placeholder="Your Email" maxlength="120" required autocomplete="email" value="<?php echo hw_e(hw_old($old, 'email')); ?>">
+                        <input type="email" name="email" placeholder="Your Email" maxlength="120" autocomplete="email" value="<?php echo hw_e(hw_old($old, 'email')); ?>">
                         <?php if (hw_field_error($old, 'email') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'email')); ?></small><?php endif; ?>
                     </label>
                     <label class="field<?php echo hw_field_error($old, 'message') !== '' ? ' has-error' : ''; ?>">
                         <span>Write Your Message Here...</span>
-                        <textarea name="message" rows="6" placeholder="Write Your Message Here..." maxlength="2000" required><?php echo hw_e(hw_old($old, 'message')); ?></textarea>
+                        <textarea name="message" rows="6" placeholder="Write Your Message Here..." maxlength="2000"><?php echo hw_e(hw_old($old, 'message')); ?></textarea>
                         <?php if (hw_field_error($old, 'message') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'message')); ?></small><?php endif; ?>
                     </label>
                     <button class="btn btn-gold full" type="submit">Send Message</button>

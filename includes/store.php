@@ -174,6 +174,111 @@ function hw_export_csv(string $filename, array $headers, array $rows): void
     exit;
 }
 
+function hw_admin_date_key(?string $value): string
+{
+    if ($value === null || $value === '') {
+        return '';
+    }
+    $time = strtotime($value);
+    return $time ? date('Y-m-d', $time) : substr($value, 0, 10);
+}
+
+function hw_admin_filter_query(string $tab, string $q, string $from, string $to, int $page = 1): string
+{
+    $params = ['tab' => $tab];
+    if ($q !== '') {
+        $params['q'] = $q;
+    }
+    if ($from !== '') {
+        $params['from'] = $from;
+    }
+    if ($to !== '') {
+        $params['to'] = $to;
+    }
+    if ($page > 1) {
+        $params['page'] = $page;
+    }
+    return '?' . http_build_query($params);
+}
+
+function hw_admin_filter_records(array $records, string $q, string $from, string $to): array
+{
+    $q = trim($q);
+    $from = preg_match('/^\d{4}-\d{2}-\d{2}$/', $from) ? $from : '';
+    $to = preg_match('/^\d{4}-\d{2}-\d{2}$/', $to) ? $to : '';
+    $qLower = function_exists('mb_strtolower') ? mb_strtolower($q) : strtolower($q);
+    $qDigits = preg_replace('/\D+/', '', $q) ?? '';
+
+    if ($q === '' && $from === '' && $to === '') {
+        return array_values($records);
+    }
+
+    $out = [];
+    foreach ($records as $row) {
+        if (!is_array($row)) {
+            continue;
+        }
+        $day = hw_admin_date_key(isset($row['created_at']) ? (string) $row['created_at'] : null);
+        if ($from !== '' && ($day === '' || $day < $from)) {
+            continue;
+        }
+        if ($to !== '' && ($day === '' || $day > $to)) {
+            continue;
+        }
+        if ($q !== '') {
+            $name = (string) ($row['name'] ?? '');
+            $email = (string) ($row['email'] ?? '');
+            $location = (string) ($row['location'] ?? '');
+            $message = (string) ($row['message'] ?? '');
+            $hay = function_exists('mb_strtolower')
+                ? mb_strtolower($name . ' ' . $email . ' ' . $location . ' ' . $message)
+                : strtolower($name . ' ' . $email . ' ' . $location . ' ' . $message);
+            $phone = preg_replace('/\D+/', '', (string) ($row['phone'] ?? '')) ?? '';
+            $textHit = $qLower !== '' && str_contains($hay, $qLower);
+            $phoneHit = $qDigits !== '' && strlen($qDigits) >= 3 && str_contains($phone, $qDigits);
+            $zipHit = preg_match('/^\d{5}(?:-\d{4})?$/', $q) === 1 && str_contains($location, $q);
+            if (!$textHit && !$phoneHit && !$zipHit) {
+                continue;
+            }
+        }
+        $out[] = $row;
+    }
+    return $out;
+}
+
+function hw_admin_page_list(int $page, int $pages): array
+{
+    $pages = max(1, $pages);
+    $page = max(1, min($page, $pages));
+    if ($pages <= 7) {
+        return range(1, $pages);
+    }
+
+    $start = max(2, $page - 1);
+    $end = min($pages - 1, $page + 1);
+    if ($page <= 3) {
+        $start = 2;
+        $end = 4;
+    }
+    if ($page >= $pages - 2) {
+        $start = $pages - 3;
+        $end = $pages - 1;
+    }
+
+    $items = [1];
+    if ($start > 2) {
+        $items[] = 0;
+    }
+    for ($i = $start; $i <= $end; $i++) {
+        $items[] = $i;
+    }
+    if ($end < $pages - 1) {
+        $items[] = 0;
+    }
+    $items[] = $pages;
+    return $items;
+}
+
 function hw_admin_date(?string $value): string
 {
     if ($value === null || $value === '') {
@@ -193,6 +298,46 @@ function hw_preview(string $text, int $length = 72): string
         return substr($text, 0, $length) . '…';
     }
     return $text;
+}
+
+function hw_find_records(string $path, array $ids): array
+{
+    if ($path !== HW_LEADS_FILE && $path !== HW_MESSAGES_FILE) {
+        return [];
+    }
+
+    $wanted = [];
+    foreach ($ids as $id) {
+        $id = strtolower(trim((string) $id));
+        if ($id !== '' && preg_match('/^[a-f0-9]{8,64}$/', $id)) {
+            $wanted[$id] = true;
+        }
+        if (count($wanted) >= HW_ADMIN_PER_PAGE) {
+            break;
+        }
+    }
+    if ($wanted === []) {
+        return [];
+    }
+
+    $found = [];
+    foreach (hw_read_json($path) as $row) {
+        if (!is_array($row)) {
+            continue;
+        }
+        $id = strtolower((string) ($row['id'] ?? ''));
+        if (isset($wanted[$id])) {
+            $found[$id] = $row;
+        }
+    }
+
+    $ordered = [];
+    foreach (array_keys($wanted) as $id) {
+        if (isset($found[$id])) {
+            $ordered[] = $found[$id];
+        }
+    }
+    return $ordered;
 }
 
 function hw_delete_record(string $path, string $id): bool

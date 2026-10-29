@@ -62,6 +62,10 @@ if (preg_match('#^/' . preg_quote($adminSlug, '#') . '/logout(?:\\.php)?/?$#', $
     require __DIR__ . '/admin/logout.php';
     return true;
 }
+if (preg_match('#^/' . preg_quote($adminSlug, '#') . '/form(?:\\.php)?/?$#', $path)) {
+    require __DIR__ . '/admin/form.php';
+    return true;
+}
 
 $file = __DIR__ . $path;
 if ($path !== '/' && is_file($file)) {

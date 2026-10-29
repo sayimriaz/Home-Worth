@@ -33,20 +33,17 @@ $errors = [];
 if (!hw_validate_name($name)) {
     $errors['name'] = 'Enter a valid name using letters.';
 }
-if (!hw_validate_phone($phone)) {
+if ($phone !== '' && !hw_validate_phone($phone)) {
     $errors['phone'] = 'Enter a valid phone number with at least 10 digits.';
 }
-if (!hw_validate_email($email)) {
+if ($email !== '' && !hw_validate_email($email)) {
     $errors['email'] = 'Enter a valid email address.';
 }
-if (strlen($location) < 3) {
-    $errors['location'] = 'Enter the property location.';
+if ($propertyType !== '' && !hw_in_list($propertyType, HW_PROPERTY_TYPES)) {
+    $errors['property_type'] = 'Select a valid type of property.';
 }
-if (!hw_in_list($propertyType, HW_PROPERTY_TYPES)) {
-    $errors['property_type'] = 'Select the type of property.';
-}
-if (!hw_in_list($expectedPrice, HW_PRICE_RANGES)) {
-    $errors['expected_price'] = 'Select an expected price.';
+if ($expectedPrice !== '' && !hw_in_list($expectedPrice, HW_PRICE_RANGES)) {
+    $errors['expected_price'] = 'Select a valid expected price.';
 }
 if (!$consent) {
     $errors['consent'] = 'Please accept the consent checkbox.';
@@ -59,7 +56,7 @@ if ($errors !== []) {
     hw_redirect('');
 }
 
-if (hw_is_disposable_email($email)) {
+if ($email !== '' && hw_is_disposable_email($email)) {
     hw_flash_old('lead', $old);
     hw_flash('form_error', 'Use a regular email address.');
     hw_redirect('');
@@ -78,6 +75,7 @@ $lead = [
     'location' => $location,
     'property_type' => $propertyType,
     'expected_price' => $expectedPrice,
+    'consent' => $consent,
 ];
 
 hw_append_record(HW_LEADS_FILE, $lead);

@@ -50,29 +50,29 @@ require __DIR__ . '/includes/header.php';
                 <?php echo hw_form_shield_fields(); ?>
                 <div class="lead-grid">
                     <label class="field<?php echo hw_field_error($old, 'name') !== '' ? ' has-error' : ''; ?>">
-                        <span>Your Name</span>
+                        <span>Your Name *</span>
                         <input type="text" name="name" placeholder="Full name" maxlength="80" required autocomplete="name" value="<?php echo hw_e(hw_old($old, 'name')); ?>">
                         <?php if (hw_field_error($old, 'name') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'name')); ?></small><?php endif; ?>
                     </label>
                     <label class="field<?php echo hw_field_error($old, 'phone') !== '' ? ' has-error' : ''; ?>">
                         <span>Phone</span>
-                        <input type="tel" name="phone" placeholder="Phone number" maxlength="20" required autocomplete="tel" value="<?php echo hw_e(hw_old($old, 'phone')); ?>">
+                        <input type="tel" name="phone" placeholder="Phone number" maxlength="20" autocomplete="tel" value="<?php echo hw_e(hw_old($old, 'phone')); ?>">
                         <?php if (hw_field_error($old, 'phone') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'phone')); ?></small><?php endif; ?>
                     </label>
                     <label class="field<?php echo hw_field_error($old, 'email') !== '' ? ' has-error' : ''; ?>">
                         <span>Your Email</span>
-                        <input type="email" name="email" placeholder="Email address" maxlength="120" required autocomplete="email" value="<?php echo hw_e(hw_old($old, 'email')); ?>">
+                        <input type="email" name="email" placeholder="Email address" maxlength="120" autocomplete="email" value="<?php echo hw_e(hw_old($old, 'email')); ?>">
                         <?php if (hw_field_error($old, 'email') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'email')); ?></small><?php endif; ?>
                     </label>
                     <label class="field<?php echo hw_field_error($old, 'location') !== '' ? ' has-error' : ''; ?>">
                         <span>Property Location</span>
-                        <input type="text" name="location" placeholder="City or address" maxlength="120" required value="<?php echo hw_e(hw_old($old, 'location')); ?>">
+                        <input type="text" name="location" placeholder="City or address" maxlength="120" value="<?php echo hw_e(hw_old($old, 'location')); ?>">
                         <?php if (hw_field_error($old, 'location') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'location')); ?></small><?php endif; ?>
                     </label>
                     <label class="field<?php echo hw_field_error($old, 'property_type') !== '' ? ' has-error' : ''; ?>">
                         <span>Type of Property</span>
-                        <select name="property_type" required>
-                            <option value="" disabled hidden<?php echo hw_old($old, 'property_type') === '' ? ' selected' : ''; ?>>Select type</option>
+                        <select name="property_type">
+                            <option value=""<?php echo hw_old($old, 'property_type') === '' ? ' selected' : ''; ?>>Select type</option>
                             <?php foreach (HW_PROPERTY_TYPES as $type): ?>
                                 <option value="<?php echo hw_e($type); ?>"<?php echo hw_old($old, 'property_type') === $type ? ' selected' : ''; ?>><?php echo hw_e($type); ?></option>
                             <?php endforeach; ?>
@@ -81,8 +81,8 @@ require __DIR__ . '/includes/header.php';
                     </label>
                     <label class="field<?php echo hw_field_error($old, 'expected_price') !== '' ? ' has-error' : ''; ?>">
                         <span>Expected Price</span>
-                        <select name="expected_price" required>
-                            <option value="" disabled hidden<?php echo hw_old($old, 'expected_price') === '' ? ' selected' : ''; ?>>Select range</option>
+                        <select name="expected_price">
+                            <option value=""<?php echo hw_old($old, 'expected_price') === '' ? ' selected' : ''; ?>>Select range</option>
                             <?php foreach (HW_PRICE_RANGES as $range): ?>
                                 <option value="<?php echo hw_e($range); ?>"<?php echo hw_old($old, 'expected_price') === $range ? ' selected' : ''; ?>><?php echo hw_e($range); ?></option>
                             <?php endforeach; ?>
