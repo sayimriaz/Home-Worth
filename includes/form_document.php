@@ -88,9 +88,9 @@ function hw_form_fields(string $kind, array $record): array
 
     return [
         ['label' => 'Your Name *', 'value' => $blank($record['name'] ?? ''), 'span' => 1],
-        ['label' => 'Phone', 'value' => $blank($record['phone'] ?? ''), 'span' => 1],
+        ['label' => 'Phone', 'value' => hw_form_display_multi($blank($record['phone'] ?? '')), 'span' => 1],
         ['label' => 'Your Email', 'value' => $blank($record['email'] ?? ''), 'span' => 1],
-        ['label' => 'Property Location', 'value' => $blank($record['location'] ?? ''), 'span' => 1],
+        ['label' => 'Property Location', 'value' => hw_form_display_multi($blank($record['location'] ?? '')), 'span' => 2],
         ['label' => 'Type of Property', 'value' => $blank($record['property_type'] ?? ''), 'span' => 1],
         ['label' => 'Expected Price', 'value' => $blank($record['expected_price'] ?? ''), 'span' => 1],
     ];

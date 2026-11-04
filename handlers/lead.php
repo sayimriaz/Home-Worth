@@ -7,9 +7,9 @@ require_once dirname(__DIR__) . '/includes/bootstrap.php';
 hw_require_post();
 
 $name = hw_clean_text((string) ($_POST['name'] ?? ''), 80);
-$phone = hw_clean_text((string) ($_POST['phone'] ?? ''), 20);
+$phone = hw_normalize_multi_field((string) ($_POST['phone'] ?? ''), 320, 20);
 $email = hw_clean_text((string) ($_POST['email'] ?? ''), 120);
-$location = hw_clean_text((string) ($_POST['location'] ?? ''), 120);
+$location = hw_normalize_multi_field((string) ($_POST['location'] ?? ''), 500, 10);
 $propertyType = hw_clean_text((string) ($_POST['property_type'] ?? ''), 40);
 $expectedPrice = hw_clean_text((string) ($_POST['expected_price'] ?? ''), 40);
 $consent = isset($_POST['consent']);
@@ -34,7 +34,7 @@ if (!hw_validate_name($name)) {
     $errors['name'] = 'Enter a valid name using letters.';
 }
 if ($phone !== '' && !hw_validate_phone($phone)) {
-    $errors['phone'] = 'Enter a valid phone number with at least 10 digits.';
+    $errors['phone'] = 'Enter a valid phone number, or several separated by commas (each at least 7 digits).';
 }
 if ($email !== '' && !hw_validate_email($email)) {
     $errors['email'] = 'Enter a valid email address.';

@@ -288,6 +288,36 @@ function hw_admin_date(?string $value): string
     return $time ? date('M j, Y g:ia', $time) : '';
 }
 
+function hw_admin_multi_html(string $value): string
+{
+    $value = trim($value);
+    if ($value === '') {
+        return '';
+    }
+    $parts = hw_split_multi($value);
+    if (count($parts) <= 1) {
+        return hw_e($parts[0] ?? $value);
+    }
+    $html = '<ul class="admin-multi">';
+    foreach ($parts as $part) {
+        $html .= '<li>' . hw_e($part) . '</li>';
+    }
+    return $html . '</ul>';
+}
+
+function hw_form_display_multi(string $value): string
+{
+    $value = trim($value);
+    if ($value === '') {
+        return '';
+    }
+    $parts = hw_split_multi($value);
+    if (count($parts) <= 1) {
+        return $parts[0] ?? $value;
+    }
+    return implode("\n", $parts);
+}
+
 function hw_preview(string $text, int $length = 72): string
 {
     $text = trim(preg_replace('/\s+/u', ' ', $text) ?? $text);

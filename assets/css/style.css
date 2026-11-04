@@ -312,6 +312,18 @@ h1, h2, h3 {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+.lead-field-wide { grid-column: 1 / -1; }
+.lead-form textarea {
+  width: 100%;
+  min-height: 72px;
+  resize: vertical;
+  line-height: 1.45;
+  border: 1px solid #d7dbe3;
+  border-radius: 14px;
+  padding: 10px 16px;
+  background: #fff;
+  color: var(--ink);
+}
 .lead-form .field,
 .contact-form .field { display: grid; gap: 6px; }
 .field-error {
@@ -1638,7 +1650,34 @@ h1, h2, h3 {
 .admin-app thead .admin-col-num { color: #fff; }
 .admin-app .admin-col-date { width: 158px; }
 .admin-app .admin-col-name { width: 150px; }
-.admin-app .admin-col-phone { width: 118px; }
+.admin-app .admin-col-phone { width: 148px; }
+.admin-app .admin-col-location { width: 220px; }
+.admin-app td.admin-col-phone,
+.admin-app td.admin-col-location {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  vertical-align: top;
+}
+.admin-multi {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.admin-multi li {
+  margin: 0;
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: #f4f6fa;
+  border: 1px solid #e4e9f0;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
 .admin-app .admin-col-email { width: 168px; }
 .admin-app .admin-col-type { width: 88px; }
 .admin-app .admin-col-price { width: 168px; }

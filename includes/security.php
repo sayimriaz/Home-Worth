@@ -563,15 +563,85 @@ function hw_validate_name(string $name): bool
     return (bool) preg_match('/^[\p{L}\p{M} .\'-]{2,80}$/u', $name);
 }
 
+function hw_split_multi(string $value): array
+{
+    $value = trim(str_replace(["\r\n", "\r"], "\n", $value));
+    if ($value === '') {
+        return [];
+    }
+    $parts = preg_split('/[\n,;|\/]+|\s+(?:and|&)\s+/i', $value) ?: [];
+    $out = [];
+    foreach ($parts as $part) {
+        $part = trim((string) $part);
+        if ($part !== '') {
+            $out[] = $part;
+        }
+    }
+    return $out;
+}
+
+function hw_join_multi(array $parts): string
+{
+    return implode(', ', $parts);
+}
+
+function hw_normalize_multi_field(string $value, int $max, int $maxParts = 8): string
+{
+    $parts = hw_split_multi($value);
+    if ($parts === []) {
+        return hw_clean_text($value, $max);
+    }
+    if (count($parts) > $maxParts) {
+        $parts = array_slice($parts, 0, $maxParts);
+    }
+    return hw_clean_text(hw_join_multi($parts), $max);
+}
+
+function hw_validate_phone_segment(string $segment, int $minDigits = 10): bool
+{
+    $segment = trim($segment);
+    if ($segment === '') {
+        return false;
+    }
+    $digits = preg_replace('/\D+/', '', $segment) ?? '';
+    if (strlen($digits) < $minDigits || strlen($digits) > 15) {
+        return false;
+    }
+    return (bool) preg_match('/^[0-9+\-\s().xXext]+$/', $segment);
+}
+
 function hw_validate_phone(string $phone): bool
 {
-    $digits = preg_replace('/\D+/', '', $phone) ?? '';
-    return strlen($digits) >= 10 && strlen($digits) <= 15 && (bool) preg_match('/^[0-9+\-\s().]{10,20}$/', $phone);
+    $phone = trim($phone);
+    if ($phone === '') {
+        return true;
+    }
+    $parts = hw_split_multi($phone);
+    if ($parts === []) {
+        $parts = [$phone];
+    }
+    $minDigits = count($parts) > 1 ? 7 : 10;
+    foreach ($parts as $part) {
+        if (!hw_validate_phone_segment($part, $minDigits)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 function hw_validate_email(string $email): bool
 {
-    return (bool) filter_var($email, FILTER_VALIDATE_EMAIL) && strlen($email) <= 120;
+    $email = trim($email);
+    if ($email === '' || strlen($email) > 120) {
+        return false;
+    }
+    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return true;
+    }
+    return (bool) preg_match(
+        "/^[A-Za-z0-9.!#\$%&'*+\/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$/",
+        $email
+    );
 }
 
 function hw_in_list(string $value, array $allowed): bool

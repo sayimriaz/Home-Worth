@@ -56,17 +56,17 @@ require __DIR__ . '/includes/header.php';
                     </label>
                     <label class="field<?php echo hw_field_error($old, 'phone') !== '' ? ' has-error' : ''; ?>">
                         <span>Phone</span>
-                        <input type="tel" name="phone" placeholder="Phone number" maxlength="20" autocomplete="tel" value="<?php echo hw_e(hw_old($old, 'phone')); ?>">
+                        <input type="tel" name="phone" placeholder="e.g. 469-906-0714 or two numbers: 469-906-0714, 325-676-1146" maxlength="320" autocomplete="tel" value="<?php echo hw_e(hw_old($old, 'phone')); ?>">
                         <?php if (hw_field_error($old, 'phone') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'phone')); ?></small><?php endif; ?>
                     </label>
                     <label class="field<?php echo hw_field_error($old, 'email') !== '' ? ' has-error' : ''; ?>">
                         <span>Your Email</span>
-                        <input type="email" name="email" placeholder="Email address" maxlength="120" autocomplete="email" value="<?php echo hw_e(hw_old($old, 'email')); ?>">
+                        <input type="text" name="email" placeholder="Email address" maxlength="120" autocomplete="email" inputmode="email" spellcheck="false" value="<?php echo hw_e(hw_old($old, 'email')); ?>">
                         <?php if (hw_field_error($old, 'email') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'email')); ?></small><?php endif; ?>
                     </label>
-                    <label class="field<?php echo hw_field_error($old, 'location') !== '' ? ' has-error' : ''; ?>">
+                    <label class="field lead-field-wide<?php echo hw_field_error($old, 'location') !== '' ? ' has-error' : ''; ?>">
                         <span>Property Location</span>
-                        <input type="text" name="location" placeholder="City or address" maxlength="120" value="<?php echo hw_e(hw_old($old, 'location')); ?>">
+                        <textarea name="location" rows="2" placeholder="City or address. Separate multiple properties with commas or new lines." maxlength="500"><?php echo hw_e(hw_old($old, 'location')); ?></textarea>
                         <?php if (hw_field_error($old, 'location') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'location')); ?></small><?php endif; ?>
                     </label>
                     <label class="field<?php echo hw_field_error($old, 'property_type') !== '' ? ' has-error' : ''; ?>">
