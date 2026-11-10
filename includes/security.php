@@ -563,7 +563,7 @@ function hw_validate_name(string $name): bool
     return (bool) preg_match('/^[\p{L}\p{M} .\'-]{2,80}$/u', $name);
 }
 
-function hw_split_multi(string $value): array
+function hw_split_phones(string $value): array
 {
     $value = trim(str_replace(["\r\n", "\r"], "\n", $value));
     if ($value === '') {
@@ -580,21 +580,56 @@ function hw_split_multi(string $value): array
     return $out;
 }
 
-function hw_join_multi(array $parts): string
+/** Multiple addresses: new lines or || only (commas stay in one address). */
+function hw_split_locations(string $value): array
+{
+    $value = str_replace(["\r\n", "\r"], "\n", $value);
+    $value = trim($value);
+    if ($value === '') {
+        return [];
+    }
+    if (str_contains($value, '||')) {
+        $parts = preg_split('/\s*\|\|\s*/', $value) ?: [];
+    } else {
+        $parts = preg_split('/\n+/', $value) ?: [];
+    }
+    $out = [];
+    foreach ($parts as $part) {
+        $part = trim((string) $part);
+        if ($part !== '') {
+            $out[] = $part;
+        }
+    }
+    return $out;
+}
+
+function hw_join_phones(array $parts): string
 {
     return implode(', ', $parts);
 }
 
-function hw_normalize_multi_field(string $value, int $max, int $maxParts = 8): string
+function hw_normalize_phone_field(string $value, int $max, int $maxParts = 20): string
 {
-    $parts = hw_split_multi($value);
+    $parts = hw_split_phones($value);
     if ($parts === []) {
         return hw_clean_text($value, $max);
     }
     if (count($parts) > $maxParts) {
         $parts = array_slice($parts, 0, $maxParts);
     }
-    return hw_clean_text(hw_join_multi($parts), $max);
+    return hw_clean_text(hw_join_phones($parts), $max);
+}
+
+function hw_normalize_location_field(string $value, int $max, int $maxParts = 10): string
+{
+    $parts = hw_split_locations($value);
+    if ($parts === []) {
+        return hw_clean_text($value, $max);
+    }
+    if (count($parts) > $maxParts) {
+        $parts = array_slice($parts, 0, $maxParts);
+    }
+    return hw_clean_text(implode("\n", $parts), $max);
 }
 
 function hw_validate_phone_segment(string $segment, int $minDigits = 10): bool
@@ -616,7 +651,7 @@ function hw_validate_phone(string $phone): bool
     if ($phone === '') {
         return true;
     }
-    $parts = hw_split_multi($phone);
+    $parts = hw_split_phones($phone);
     if ($parts === []) {
         $parts = [$phone];
     }

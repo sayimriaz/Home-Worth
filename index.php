@@ -66,7 +66,7 @@ require __DIR__ . '/includes/header.php';
                     </label>
                     <label class="field lead-field-wide<?php echo hw_field_error($old, 'location') !== '' ? ' has-error' : ''; ?>">
                         <span>Property Location</span>
-                        <textarea name="location" rows="2" placeholder="City or address. Separate multiple properties with commas or new lines." maxlength="500"><?php echo hw_e(hw_old($old, 'location')); ?></textarea>
+                        <textarea name="location" rows="3" placeholder="Full address (commas are fine). For two or more properties, put each on its own line or between ||" maxlength="500"><?php echo hw_e(hw_old($old, 'location')); ?></textarea>
                         <?php if (hw_field_error($old, 'location') !== ''): ?><small class="field-error"><?php echo hw_e(hw_field_error($old, 'location')); ?></small><?php endif; ?>
                     </label>
                     <label class="field<?php echo hw_field_error($old, 'property_type') !== '' ? ' has-error' : ''; ?>">

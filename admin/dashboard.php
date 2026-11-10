@@ -358,7 +358,7 @@ $titles = [
                                         <td class="admin-col-name" title="<?php echo hw_e($leadName); ?>"><?php echo hw_e($leadName); ?></td>
                                         <td class="admin-col-phone"><?php echo hw_admin_multi_html((string) ($row['phone'] ?? '')); ?></td>
                                         <td class="admin-col-email" title="<?php echo hw_e($leadEmail); ?>"><?php echo hw_e($leadEmail); ?></td>
-                                        <td class="admin-col-location"><?php echo hw_admin_multi_html($leadLocation); ?></td>
+                                        <td class="admin-col-location"><?php echo hw_admin_multi_html($leadLocation, true); ?></td>
                                         <td class="admin-col-type"><?php echo hw_e((string) ($row['property_type'] ?? '')); ?></td>
                                         <td class="admin-col-price" title="<?php echo hw_e($leadPrice); ?>"><?php echo hw_e($leadPrice); ?></td>
                                     <?php else: ?>

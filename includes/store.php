@@ -288,13 +288,13 @@ function hw_admin_date(?string $value): string
     return $time ? date('M j, Y g:ia', $time) : '';
 }
 
-function hw_admin_multi_html(string $value): string
+function hw_admin_multi_html(string $value, bool $location = false): string
 {
     $value = trim($value);
     if ($value === '') {
         return '';
     }
-    $parts = hw_split_multi($value);
+    $parts = $location ? hw_split_locations($value) : hw_split_phones($value);
     if (count($parts) <= 1) {
         return hw_e($parts[0] ?? $value);
     }
@@ -305,13 +305,13 @@ function hw_admin_multi_html(string $value): string
     return $html . '</ul>';
 }
 
-function hw_form_display_multi(string $value): string
+function hw_form_display_multi(string $value, bool $location = false): string
 {
     $value = trim($value);
     if ($value === '') {
         return '';
     }
-    $parts = hw_split_multi($value);
+    $parts = $location ? hw_split_locations($value) : hw_split_phones($value);
     if (count($parts) <= 1) {
         return $parts[0] ?? $value;
     }

@@ -7,9 +7,9 @@ require_once dirname(__DIR__) . '/includes/bootstrap.php';
 hw_require_post();
 
 $name = hw_clean_text((string) ($_POST['name'] ?? ''), 80);
-$phone = hw_normalize_multi_field((string) ($_POST['phone'] ?? ''), 320, 20);
+$phone = hw_normalize_phone_field((string) ($_POST['phone'] ?? ''), 320, 20);
 $email = hw_clean_text((string) ($_POST['email'] ?? ''), 120);
-$location = hw_normalize_multi_field((string) ($_POST['location'] ?? ''), 500, 10);
+$location = hw_normalize_location_field((string) ($_POST['location'] ?? ''), 500, 10);
 $propertyType = hw_clean_text((string) ($_POST['property_type'] ?? ''), 40);
 $expectedPrice = hw_clean_text((string) ($_POST['expected_price'] ?? ''), 40);
 $consent = isset($_POST['consent']);
